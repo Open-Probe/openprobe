@@ -1,18 +1,16 @@
 import argparse
 import asyncio
-import datetime
 import json
 import os
 import threading
-import time
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from pathlib import Path
 
-import datasets
 import pandas as pd
 from datasets import Dataset
 from dotenv import load_dotenv
 from tqdm import tqdm
+
 from deepsearch.utils import extract_content
 from deepsearch.graph import graph
 
@@ -34,8 +32,10 @@ if reranker_ip:
 else:
     reranker = "jina"
 
+
 def parse_arguments():
-    parser = argparse.ArgumentParser(description="Runs an agent powered by the given model.")
+    parser = argparse.ArgumentParser(
+        description="Runs an agent powered by the given model.")
     parser.add_argument(
         "--eval-tasks",
         type=str,
@@ -61,6 +61,7 @@ def load_eval_dataset(eval_tasks: list):
         eval_ds[task_name] = dataset
     return eval_ds
 
+
 def append_answer(entry: dict, jsonl_file: str) -> None:
     jsonl_file = Path(jsonl_file)
     jsonl_file.parent.mkdir(parents=True, exist_ok=True)
@@ -76,6 +77,7 @@ def run_with_timeout(func, timeout):
             return future.result(timeout=timeout)
         except TimeoutError:
             return "Timed Out"
+
 
 async def answer_single_question(example, answers_file):
     augmented_question = example["question"]
@@ -103,7 +105,7 @@ async def answer_single_question(example, answers_file):
         response = res["result"]
         answer = extract_content(response, "answer")
         if answer is None:
-             answer = "Failed without an answer!"
+            answer = "Failed without an answer!"
         return answer
     try:
         answer = await asyncio.wait_for(get_agent_response(), timeout=TIMEOUT_SECONDS)
@@ -119,8 +121,10 @@ async def answer_single_question(example, answers_file):
     }
     append_answer(annotated_example, answers_file)
 
+
 def answer_sync(example, file_name):
-        return asyncio.run(answer_single_question(example, file_name))
+    return asyncio.run(answer_single_question(example, file_name))
+
 
 def answer_questions(
     eval_ds,
@@ -129,24 +133,26 @@ def answer_questions(
 ):
     # Create directory structure: output/model_id/reranker/task
     model_dir = model_id.replace('/', '__')
-    
+
     for task in eval_ds:
         task_dir = os.path.join(output_dir, model_id, reranker, task)
         os.makedirs(task_dir, exist_ok=True)
-        
+
         file_name = f"{task_dir}/{model_id}__{reranker}__{task}.jsonl"
         print(f"Starting processing and writing output to '{file_name}'")
         answered_questions = []
         if os.path.exists(file_name):
             with open(file_name, "r") as f:
                 for line in f:
-                    answered_questions.append(json.loads(line)["original_question"])
-        examples_todo = [example for example in eval_ds[task] if example["question"] not in answered_questions]
+                    answered_questions.append(
+                        json.loads(line)["original_question"])
+        examples_todo = [example for example in eval_ds[task]
+                         if example["question"] not in answered_questions]
         print(f"Launching {parallel_workers} parallel workers.")
 
         with ThreadPoolExecutor(max_workers=parallel_workers) as exe:
             futures = [
-                exe.submit(answer_sync, example, file_name) 
+                exe.submit(answer_sync, example, file_name)
                 for example in examples_todo
             ]
             for f in tqdm(as_completed(futures), total=len(examples_todo), desc="Processing tasks"):

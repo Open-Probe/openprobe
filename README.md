@@ -1,17 +1,8 @@
-# AgentX OpenProbe (WIP)
+# AgentX OpenProbe
 
 ## 🚀 Getting Started  
 
-### 1. Install Dependencies  
-Ensure you have Python installed, and then run:
-```bash  
-pip install -r requirements.txt  
-```
-
 ## Features
-
-### DeepSearch
-The DeepSearch system is designed to perform multi-step web searches with intelligent planning and replanning capabilities:
 
 - **Automated Planning**: Breaks down complex queries into multiple search steps
 - **Adaptive Replanning**: Analyzes search results and revises the search strategy when initial plans are insufficient (limited to 2 replans)
@@ -19,7 +10,7 @@ The DeepSearch system is designed to perform multi-step web searches with intell
 - **Web Search Integration**: Seamlessly integrates with search APIs to gather information
 
 ### Current Architecture
-![image](https://github.com/user-attachments/assets/4e6d22b7-2dcc-446a-a129-8f1ba5abf1cd)
+
 
 #### How it Works
 1. The system analyzes the user's question
@@ -28,42 +19,67 @@ The DeepSearch system is designed to perform multi-step web searches with intell
 4. If results are insufficient, it can replan with improved queries (up to 2 times)
 5. Finally, it synthesizes all information into a comprehensive answer
 
-#### System Limitations
-- Maximum of 5 search attempts per session
-- Maximum of 2 replanning attempts for any query
-- After the replan limit is reached, the system must answer with available information
-
-## To-Dos
-
-### Deep Search
-- Add deeper web search from OpenDeepSearch
-
 ## How to Run
 
 ### Set Up API Keys
-Set API keys to environment variable
-- Google Gemini:  
-    ```bash  
-    export GOOGLE_API_KEY=your_api_key
-    ```
 
-- Serper.dev:
-    ```bash 
-    export WEB_SEARCH_API_KEY=your_api_key
-    ```
+Create a `.env` file under the `openprobe` directory and set each API key properly
 
-- Jina:
-    ```bash 
-    export JINA_API_KEY=your_api_key
-    ```
-
-### Installation
-```bash
-cd openprobe_dev
-pip install -e .
+```
+GOOGLE_API_KEY=your_gemini_api_key
+LAMBDA_API_KEY=your_lambda_api_key
+WEB_SEARCH_API_KEY=your_serper_dev_api_key
+JINA_API_KEY=your_jina_api_key
+MISTRAL_API_KEY=your_mistral_api_key
 ```
 
-### Run
+### Installation
+
+Run the following command to complete setup
+
+```bash
+cd openprobe
+pip install -e .
+crawl4ai-setup
+crawl4ai-doctor
+```
+
+### Run with Single Question
+
 ```bash
 python test_deepsearch.py
+```
+
+### Run Evaluation with FRAMES
+
+Run evaluation of FRAMES subset with the following command:
+
+```bash
+python evals/eval_tasks.py \
+    --eval-tasks ./evals/datasets/frames_custom_set.csv \
+    --parallel-workers 8
+```
+
+After the evaluation completes, a jsonl file will store the result. The file will be located under the `output` directory.
+
+### Run Auto Grading
+
+Run LLM auto grading with the following command:
+
+```bash
+python evals/autograde_df.py \
+    PATH_TO_RESULT_JSONL_FILE \
+    --provider mistral \
+    --num_cpus 2
+```
+
+After the grading completes, the grading result will be added to the input jsonl file.
+
+### Compute Accuracy
+
+Finally, run the following command get accuracy on the test set:
+
+```bash
+python evals/accuracy.py \
+    PATH_TO_GRADED_JSONL_FILE
 ```
