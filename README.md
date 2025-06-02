@@ -106,6 +106,17 @@ This project builds upon and integrates ideas and code from various open-source 
 * [Jina AI](https://github.com/jina-ai/jina) — For computing text embeddings.
 * [Mistral](https://mistral.ai) — For LLM-based grading and evaluation.
 * [LangGraph ReWOO implementation](https://langchain-ai.github.io/langgraph/tutorials/rewoo/rewoo) - Reference implemenation of ReWOO.
-* [OpenDeepSearch](https://github.com/sentient-agi/OpenDeepSearch) - For implementing the web search tool.
+* [OpenDeepSearch](https://github.com/sentient-agi/OpenDeepSearch) - For implementing the web search tool and FRAMES evaluation.
 
 Many thanks to these projects and their communities for making this work possible!
+
+---
+
+## 👥 Contributors
+
+We’d like to thank the following people for their contributions to this project:
+
+* **[Kuo-Hsin Tu](https://github.com/NTU-P04922004)** — Team Lead, Developer, Researcher
+* **[Suryansh Singh Rawat](https://github.com/xsuryanshx)** — Developer
+* **[Jean Yu](https://github.com/jeanyu-habana)** — Developer
+* **[Ankit Basu](https://github.com/AnkitXP)** — Researcher
